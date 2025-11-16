@@ -1,0 +1,1 @@
+{"code":"#include <stdio.h>\n\nint main() {\n    int x = 10\n    int y = 20\n    printf(\"Sum: %d\", x + y)\n    return 0\n}","language":"auto"}

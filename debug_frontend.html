@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Frontend</title>
+</head>
+<body>
+    <h1>Frontend Debug Test</h1>
+    <button onclick="testAnalyze()">Test Analyze API</button>
+    <button onclick="testFix()">Test Fix API</button>
+    <div id="result"></div>
+    
+    <script>
+        const brokenCode = `function broken() {
+  console.log('missing semicolon')
+  var x = 1
+  if (x == 1) {
+    console.log('should be ===')
+  }
+}`;
+        
+        async function testAnalyze() {
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: brokenCode, language: 'javascript' })
+                });
+                
+                const data = await response.json();
+                document.getElementById('result').innerHTML = 
+                    `<h3>Analyze Result:</h3>
+                     <pre>${JSON.stringify(data, null, 2)}</pre>
+                     <p><strong>Score:</strong> ${data.codeQualityScore}/100</p>
+                     <p><strong>Issues:</strong> ${data.issues.length}</p>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testFix() {
+            try {
+                const response = await fetch('/api/fix', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: brokenCode, language: 'javascript' })
+                });
+                
+                const data = await response.json();
+                document.getElementById('result').innerHTML = 
+                    `<h3>Fix Result:</h3>
+                     <pre>${JSON.stringify(data, null, 2)}</pre>
+                     <p><strong>Fixed Code:</strong></p>
+                     <pre>${data.fixedCode}</pre>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

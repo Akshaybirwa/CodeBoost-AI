@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Test</title>
+</head>
+<body>
+    <h1>Testing Frontend API Calls</h1>
+    <textarea id="code" rows="10" cols="50">function test() {
+    console.log("hello")
+    var x = 10
+    var y = 20
+    if (x == y) {
+        console.log("equal")
+    }
+    return x + y
+}</textarea>
+    <br>
+    <button onclick="testAnalyze()">Test Analyze</button>
+    <button onclick="testFix()">Test Fix</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAnalyze() {
+            const code = document.getElementById('code').value;
+            document.getElementById('result').innerHTML = 'Testing analyze...';
+            
+            try {
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, language: 'auto' })
+                });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                
+                const data = await res.json();
+                document.getElementById('result').innerHTML = 
+                    `<h3>Success!</h3>
+                     <p>Score: ${data.codeQualityScore}/100</p>
+                     <p>Language: ${data.language}</p>
+                     <p>Issues: ${data.issues.length}</p>
+                     <pre>${JSON.stringify(data.issues, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<h3>Error:</h3><pre>${error.stack}</pre>`;
+            }
+        }
+
+        async function testFix() {
+            const code = document.getElementById('code').value;
+            document.getElementById('result').innerHTML = 'Testing fix...';
+            
+            try {
+                const res = await fetch('/api/fix', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, language: 'auto' })
+                });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                
+                const data = await res.json();
+                document.getElementById('result').innerHTML = 
+                    `<h3>Success!</h3>
+                     <p>Language: ${data.language}</p>
+                     <p>Changes: ${data.changes.join(', ')}</p>
+                     <p>Source: ${data.source}</p>
+                     <h4>Fixed Code:</h4>
+                     <pre>${data.fixedCode}</pre>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<h3>Error:</h3><pre>${error.stack}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>

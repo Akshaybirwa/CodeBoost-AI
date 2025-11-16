@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Frontend Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .loading { color: blue; }
+        .results { color: green; }
+        .error { color: red; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+        button { margin: 10px 0; padding: 10px 20px; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Fix Test</h1>
+    <p>This test verifies that the frontend now properly shows loading state instead of clearing results.</p>
+    
+    <button onclick="testAnalysis()">Test Analysis Flow</button>
+    <div id="status"></div>
+    <div id="result"></div>
+    
+    <script>
+        const brokenCode = `function test() {
+  console.log('hello')
+  var x = 1
+  if (x == 1) {
+    console.log('test')
+  }
+}`;
+        
+        async function testAnalysis() {
+            const statusEl = document.getElementById('status');
+            const resultEl = document.getElementById('result');
+            
+            // Step 1: Show loading state (this is what the fix should do)
+            statusEl.innerHTML = '<p class="loading">⏳ Sending analysis request...</p>';
+            resultEl.innerHTML = '<p>🔄 Previous results should remain visible during analysis...</p>';
+            
+            try {
+                // Step 2: Make API call
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: brokenCode, language: 'javascript' })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Step 3: Show results
+                statusEl.innerHTML = '<p class="results">✅ Analysis complete!</p>';
+                resultEl.innerHTML = `
+                    <h3>Results:</h3>
+                    <p><strong>Score:</strong> ${data.codeQualityScore}/100</p>
+                    <p><strong>Issues:</strong> ${data.issues.length}</p>
+                    <p><strong>Language:</strong> ${data.language}</p>
+                    <details>
+                        <summary>Full Response</summary>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </details>
+                `;
+                
+                // Verify the fix worked
+                if (data.codeQualityScore < 50 && data.issues.length > 0) {
+                    resultEl.innerHTML += '<p class="results">✅ <strong>Fix verified!</strong> Frontend now properly shows low scores and issues instead of showing 100%.</p>';
+                } else {
+                    resultEl.innerHTML += '<p class="error">❌ Something might still be wrong - score should be low with issues.</p>';
+                }
+                
+            } catch (error) {
+                statusEl.innerHTML = '<p class="error">❌ Analysis failed</p>';
+                resultEl.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

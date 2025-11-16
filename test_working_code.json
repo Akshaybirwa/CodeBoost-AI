@@ -1,0 +1,1 @@
+{"code":"function test() {\n    console.log(\"hello\");\n    let x = 10;\n    let y = 20;\n    if (x === y) {\n        console.log(\"equal\");\n    }\n    return x + y;\n}","language":"auto"}

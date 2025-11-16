@@ -1,0 +1,4 @@
+{
+  "code": "function test() {\n  console.log('hello')\n  var x = 1\n  if (x == 1) {\n    console.log('test')\n  }\n}",
+  "language": "javascript"
+}

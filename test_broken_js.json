@@ -1,0 +1,4 @@
+{
+  "code": "function broken() {\n  console.log('missing semicolon')\n  var x = 1\n  if (x == 1) {\n    console.log('should be ===')\n  }\n}",
+  "language": "javascript"
+}
